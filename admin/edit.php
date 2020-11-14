@@ -12,37 +12,47 @@ if($_SESSION['role'] != 1){
 
 if($_POST) {
 
-  $title = $_POST['title'];
-  $content = $_POST['content'];
+  if(empty($_POST['title']) || empty($_POST['content'])) {
+    if(empty($_POST['title'])) {
+      $titleErr = "Plz fill the title";
+    }
+    if(empty($_POST['content'])) {
+      $contentErr = "Plz fill the content";
+    }
+  }
+  else {
+    $title = $_POST['title'];
+    $content = $_POST['content'];
+    if($_FILES['image']['name']) {
+      $file = 'images/'.$_FILES['image']['name'];
+      $imgInfo = pathinfo($file ,PATHINFO_EXTENSION);
 
-
-
-  if($_FILES['image']['name']) {
-    $file = 'images/'.$_FILES['image']['name'];
-    $imgInfo = pathinfo($file ,PATHINFO_EXTENSION);
-
-    if($imgInfo != 'png' && $imgInfo != 'jpg' && $imgInfo != 'jpeg') {
-      echo "<script>alert('wrong image type')</script>";
-    } else{
-      $image = $_FILES['image']['name'];
-      move_uploaded_file($_FILES['image']['tmp_name'], $file);
-      $stmt = $pdo->prepare("UPDATE posts SET title=:title, content=:content,image=:image,author_id=:author_id WHERE id=".$_POST['id']);
+      if($imgInfo != 'png' && $imgInfo != 'jpg' && $imgInfo != 'jpeg') {
+        echo "<script>alert('wrong image type')</script>";
+      } else{
+        $image = $_FILES['image']['name'];
+        move_uploaded_file($_FILES['image']['tmp_name'], $file);
+        $stmt = $pdo->prepare("UPDATE posts SET title=:title, content=:content,image=:image,author_id=:author_id WHERE id=".$_POST['id']);
+        $result = $stmt->execute(
+          array(':title'=>$title, ':content'=>$content,':image'=>$image,':author_id'=>$_SESSION['user_id'])
+        );
+        if($result) {
+          echo "<script>alert('Successfully updated');window.location.href='index.php'</script>";
+        }
+      }
+    } else {
+      $stmt = $pdo->prepare("UPDATE posts SET title=:title, content=:content,author_id=:author_id WHERE id=".$_POST['id']);
       $result = $stmt->execute(
-        array(':title'=>$title, ':content'=>$content,':image'=>$image,':author_id'=>$_SESSION['user_id'])
+        array(':title'=>$title, ':content'=>$content,':author_id'=>$_SESSION['user_id'])
       );
       if($result) {
         echo "<script>alert('Successfully updated');window.location.href='index.php'</script>";
       }
     }
-  } else {
-    $stmt = $pdo->prepare("UPDATE posts SET title=:title, content=:content,author_id=:author_id WHERE id=".$_POST['id']);
-    $result = $stmt->execute(
-      array(':title'=>$title, ':content'=>$content,':author_id'=>$_SESSION['user_id'])
-    );
-    if($result) {
-      echo "<script>alert('Successfully updated');window.location.href='index.php'</script>";
-    }
+
   }
+
+
 }
 
 ?>
@@ -69,17 +79,17 @@ if($_POST) {
             <form action="" method="post" enctype="multipart/form-data">
                 <input type="hidden" name="id" value="<?php echo $output['id']?>">
                 <div class="form-group">
-                    <label for="">Title</label>
+                    <label for="">Title</label><p style="color:red;"><?php echo empty($titleErr) ? '': '*'.$titleErr;?></p>
                     <input type="text" name="title" id="" class="form-control" value="<?php echo $output['title']?>">
                 </div>
                 <div class="form-group">
-                    <label for="">Content</label>
+                    <label for="">Content</label><p style="color:red;"><?php echo empty($contentErr) ? '': '*'.$contentErr;?></p>
                     <textarea name="content" id="" cols="30" rows="10" class="form-control"><?php echo $output['content']?></textarea>
                 </div>
                 <div class="form-group">
                     <label for="">Image</label><br>
                     <img src="images/<?php echo $output['image']?>" alt="" width="200" >
-                    <input type="file" name="image" id="" class="form-control mt-2">
+                    <input type="file" name="image" id="" class="form-control-file mt-2">
                 </div>
                 <div class="form-group">
                     <input type="submit" value="Update" id="" class="btn btn-primary">

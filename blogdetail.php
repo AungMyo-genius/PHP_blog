@@ -10,17 +10,22 @@ $result = $stmt->fetchAll();
 
 $blogId = $_GET['id'];
 if($_POST) {
-  $content = $_POST['comment'];
-  $author_id = $_SESSION['user_id'];
+  if(empty($_POST['comment'])) {
+    $cmtErr = "Do not press enter without filling comment!";
+  } else {
+    $content = $_POST['comment'];
+    $author_id = $_SESSION['user_id'];
 
-  $stmt = $pdo->prepare("INSERT INTO comments (content,author_id,post_id) VALUES(:content,:author_id,:post_id)");
-  $result = $stmt->execute(
-    array(':content'=>$content,':author_id'=>$author_id,':post_id'=>$blogId)
-  );
+    $stmt = $pdo->prepare("INSERT INTO comments (content,author_id,post_id) VALUES(:content,:author_id,:post_id)");
+    $result = $stmt->execute(
+      array(':content'=>$content,':author_id'=>$author_id,':post_id'=>$blogId)
+    );
 
-  if($result) {
-    header('location: blogdetail.php?id='.$blogId);
+    if($result) {
+      header('location: blogdetail.php?id='.$blogId);
+    }
   }
+
 }
 
 //comment fetchALL
@@ -88,7 +93,7 @@ $cmResult = $stmtCmt->fetchAll();
             </div>
 
 
-            <!-- /.card-body -->
+              <p style="color:red;"><?php echo empty($cmtErr)? '':'*'.$cmtErr;?></p>
               <div class="card-footer card-comments">
                 <h4>Comment:</h4>
                 <?php if($cmResult) {

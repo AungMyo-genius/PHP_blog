@@ -6,34 +6,58 @@ session_start();
 if(empty($_SESSION['user_id']) && empty($SESSION['logged_in'])) {
   header('location: login.php');
 }
-
+$nameErr = $emailErr= $passErr='';
+$name = $email = '';
 if(!empty($_POST)) {
-  $name=$_POST['name'];
-  $email=$_POST['email'];
-  $password=$_POST['password'];
-  $role=$_POST['role'];
-  $id = $_POST['id'];
 
-  $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email AND id!=:id");
-  $stmt->bindValue(':email',$email);
-  $stmt->bindValue(':id',$id);
-  $stmt->execute();
-  $user = $stmt->fetch(PDO::FETCH_ASSOC);
+  if(empty($_POST['name']) || empty($_POST['email'])) {
+    if(empty($_POST['name'])) {
+      $nameErr = "Plz fill the name";
+    }
+    if(empty($_POST['email'])) {
+      $emailErr = "Plz fill the email";
+    }
 
-  if($user) {
-    echo "<script>alert('This email is already exited plz use another email');window.location.href='user_list.php';</script>";
-  }
 
-  else {
-  $stmt = $pdo->prepare("UPDATE users SET name=:name, email=:email,password=:password,role=:role WHERE id=".$_POST['id']);
-  $result = $stmt->execute(
-    array(':name'=>$name, ':email'=>$email,':password'=>$password,':role'=>$role)
-  );
-  if($result) {
-    echo "<script>alert('successfully edited');window.location.href='user_list.php'</script>";
+  } elseif(!empty($_POST['password']) && (strlen($_POST["password"]) < 5)) {
+    if(strlen($_POST["password"]) < 5) {
+      $passErr = "Password must be at least 5 character long";
+    }
+  } else {
+    $name=$_POST['name'];
+    $email=$_POST['email'];
+    $password=password_hash($_POST['password'],PASSWORD_DEFAULT);
+    $role=$_POST['role'];
+    $id = $_POST['id'];
+
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email AND id!=:id");
+    $stmt->bindValue(':email',$email);
+    $stmt->bindValue(':id',$id);
+    $stmt->execute();
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if($user) {
+      echo "<script>alert('This email is already exited plz use another email');window.location.href='user_list.php';</script>";
+    }
+
+    else {
+      if($password != null) {
+        $stmt = $pdo->prepare("UPDATE users SET name=:name, email=:email,password=:password,role=:role WHERE id=".$_POST['id']);
+        $result = $stmt->execute(
+          array(':name'=>$name, ':email'=>$email,':password'=>$password,':role'=>$role)
+        );
+      } else {
+        $stmt = $pdo->prepare("UPDATE users SET name=:name, email=:email,role=:role WHERE id=".$_POST['id']);
+        $result = $stmt->execute(
+          array(':name'=>$name, ':email'=>$email,':role'=>$role)
+        );
+      }
+
+    if($result) {
+      echo "<script>alert('successfully edited');window.location.href='user_list.php'</script>";
+    }
   }
 }
-
 }
 
 
@@ -58,22 +82,24 @@ $result = $stmt->fetchAll();
         <div class="row">
           <div class="col-md-12">
             <div class="card">
-              <form role="form" action="user_edit.php" method="POST">
+              <form role="form" action="" method="POST">
                 <div class="card-body">
                   <input type="hidden" class="form-control" name="id" value="<?php echo $result[0]['id']?>">
                   <div class="form-group">
                     <label for="name">Name</label>
                     <input type="text" class="form-control" name="name" id="name"  value="<?php echo $result[0]['name']?>">
+                    <span style="color:red;"><?php echo $nameErr;?></span>
                   </div>
                   <div class="form-group">
                     <label for="email">Email</label>
                     <input type="email" class="form-control" name="email" id="email" value="<?php echo $result[0]['email']?>">
-
+                    <span style="color:red;"><?php echo $emailErr;?></span>
                   </div>
                   <div class="form-group">
                     <label for="password">Password:</label>
-                    <input type="text" class="form-control" name="password" id="password" value="<?php echo $result[0]['password'];?>">
-
+                    <p>You can change password Here:</p>
+                    <input type="text" class="form-control" name="password" id="password" placeholder="Change New Password Here">
+                    <span style="color:red;"><?php echo $passErr;?></span>
                   </div>
                   <div class="form-check">
                     <input class="form-check-input" type="radio" name="role" id="admin" value="1" <?php if($result[0]['role']==1) echo 'checked';?>>

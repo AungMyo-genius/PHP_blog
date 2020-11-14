@@ -3,26 +3,43 @@ session_start();
 require 'config/config.inc.php';
 
 if($_POST) {
-  $name = $_POST['name'];
-  $email = $_POST['email'];
-  $password = $_POST['password'];
 
-  $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email");
-  $stmt->bindValue(':email',$email);
-  $stmt->execute();
-  $user = $stmt->fetch(PDO::FETCH_ASSOC);
+  if(empty($_POST['name']) || empty($_POST['email'])|| empty($_POST['password']) || strlen($_POST["password"]) < 5) {
+    if(empty($_POST['name'])) {
+      $nameErr = "Plz fill the name";
+    }
+    if(empty($_POST['email'])) {
+      $emailErr = "Plz fill the email";
+    }
+    if(empty($_POST['password'])) {
+      $passErr = "Plz add password";
+    }elseif(strlen($_POST["password"]) < 5) {
+      $passErr = "Password must be at least 5 character long";
+    }
 
-  if($user) {
-    echo "<script>alert('This email is already registered');window.location.href='login.php';</script>";
   } else {
-    $stmt = $pdo->prepare("INSERT INTO users (name,email,password) VALUES(:name,:email,:password)");
-    $result = $stmt->execute(
-      array(':name'=>$name, ':email'=>$email,':password'=>$password)
-    );
-    if($result) {
-      echo "<script>alert('Register successful');window.location.href='login.php'</script>";
+    $name = $_POST['name'];
+    $email = $_POST['email'];
+    $password = password_hash($_POST['password'],PASSWORD_DEFAULT);
+
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email");
+    $stmt->bindValue(':email',$email);
+    $stmt->execute();
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if($user) {
+      echo "<script>alert('This email is already registered');window.location.href='login.php';</script>";
+    } else {
+      $stmt = $pdo->prepare("INSERT INTO users (name,email,password) VALUES(:name,:email,:password)");
+      $result = $stmt->execute(
+        array(':name'=>$name, ':email'=>$email,':password'=>$password)
+      );
+      if($result) {
+        echo "<script>alert('Register successful');window.location.href='login.php'</script>";
+      }
     }
   }
+
 }
 
 
@@ -61,21 +78,23 @@ if($_POST) {
 
       <form action="register.php" method="post">
         <div class="input-group mb-3">
-          <input type="text" name="name" class="form-control" placeholder="Name">
+          <input type="text" name="name" class="form-control" placeholder="Name" value="<?php echo empty($_POST['name']) ? '':$_POST['name'];?>">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="far fa-address-card"></span>
             </div>
           </div>
         </div>
+        <p style="color:red;"><?php echo empty($nameErr)? '':'*'.$nameErr;?></p>
         <div class="input-group mb-3">
-          <input type="email" name="email" class="form-control" placeholder="Email">
+          <input type="email" name="email" class="form-control" placeholder="Email" value="<?php echo empty($_POST['email']) ? '':$_POST['email'];?>">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-envelope"></span>
             </div>
           </div>
         </div>
+        <p style="color:red;"><?php echo empty($emailErr)? '':'*'.$emailErr;?></p>
         <div class="input-group mb-3">
           <input type="password" name="password" class="form-control" placeholder="Password">
           <div class="input-group-append">
@@ -84,6 +103,7 @@ if($_POST) {
             </div>
           </div>
         </div>
+        <p style="color:red;"><?php echo empty($passErr)? '':'*'.$passErr;?></p>
         <div class="row">
 
           <!-- /.col -->

@@ -7,64 +7,48 @@ if(empty($_SESSION['user_id']) && empty($SESSION['logged_in'])) {
   header('location: login.php');
 }
 
-$nameErr = $emailErr= $passErr='';
-$name = $email = '';
-  if(!empty($_POST)) {
 
-   $name=$_POST['name'];
-   $email=$_POST['email'];
-   $password=$_POST['password'];
-   $role=$_POST['role'];
-   $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email");
-   $stmt->bindValue(':email',$email);
-   $stmt->execute();
-   $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-   if($user) {
-     echo "<script>alert('This email is already exited plz use another email');window.location.href='user_list.php';</script>";
-   }
-
-   else {
-      if($name == "" || $email=="" || $password="") {
-        if (empty($_POST["name"])) {
-          $nameErr = "Name is required";
-        } else {
-          $name = $_POST["name"];
-          if (!preg_match("/^[a-zA-Z-' ]*$/",$name)) {
-            $nameErr = "Only letters and white space allowed";
-          }
-        }
-
-        if (empty($_POST["email"])) {
-          $emailErr = "Email is required";
-        } else {
-          $email = $_POST["email"];
-          if (!preg_match("/^[a-zA-Z-' ]*$/",$name)) {
-            $nameErr = "Only letters and white space allowed";
-          }
-        }
-
-        if (empty($_POST["password"])) {
-          $passErr = "Password is required";
-        } else {
-          $password = $_POST["password"];
-        }
-  } else {
+if(!empty($_POST)) {
   $name = $_POST['name'];
-  $password = $_POST['password'];
+  $password = password_hash($_POST['password'],PASSWORD_DEFAULT);
   $role = $_POST['role'];
   $email = $_POST['email'];
-    $stmt = $pdo->prepare("INSERT INTO users (name,email,password,role) VALUES(:name,:email,:password,:role)");
-    $result = $stmt->execute(
-      array(':name'=>$name, ':email'=>$email,':password'=>$password,':role'=>$role)
-    );
-    if($result) {
-      echo "<script>alert('New user successfully added');window.location.href='user_list.php'</script>";
+
+    if(empty($_POST['name']) || empty($_POST['email'])|| empty($_POST['password']) || strlen($_POST["password"]) < 5) {
+      if(empty($_POST['name'])) {
+        $nameErr = "Plz fill the name";
+      }
+      if(empty($_POST['email'])) {
+        $emailErr = "Plz fill the email";
+      }
+      if(empty($_POST['password'])) {
+        $passErr = "Plz add password";
+      }elseif(strlen($_POST["password"]) < 5) {
+        $passErr = "Password must be at least 5 character long";
+      }
+
+    } else {
+
+      $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email");
+      $stmt->bindValue(':email',$email);
+      $stmt->execute();
+      $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      if($user) {
+        echo "<script>alert('This email is already exited plz use another email');window.location.href='user_list.php';</script>";
+      }
+
+       $stmt = $pdo->prepare("INSERT INTO users (name,email,password,role) VALUES(:name,:email,:password,:role)");
+       $result = $stmt->execute(
+         array(':name'=>$name, ':email'=>$email,':password'=>$password,':role'=>$role)
+       );
+       if($result) {
+         echo "<script>alert('New user successfully added');window.location.href='user_list.php'</script>";
+       }
     }
 
-  } }
+}
 
-  }
 
 
 
@@ -87,18 +71,18 @@ $name = $email = '';
                 <div class="card-body">
                   <div class="form-group">
                     <label for="name">Name</label>
-                    <input type="text" class="form-control" name="name" id="name"  value="">
-                    <span><?php echo $nameErr;?></span>
+                    <input type="text" class="form-control" name="name" id="name">
+                    <p style="color:red;"><?php echo empty($nameErr)? '':'*'.$nameErr;?></p>
                   </div>
                   <div class="form-group">
                     <label for="email">Email</label>
-                    <input type="email" class="form-control" name="email" id="email" value="">
-                    <span><?php echo $emailErr;?></span>
+                    <input type="email" class="form-control" name="email" id="email">
+                    <p style="color:red;"><?php echo empty($emailErr)? '':'*'.$emailErr;?></p>
                   </div>
                   <div class="form-group">
                     <label for="password">Password:</label>
                     <input type="password" class="form-control" name="password" id="password" value="">
-                    <span><?php echo $passErr;?></span>
+                    <p style="color:red;"><?php echo empty($passErr)? '':'*'.$passErr;?></p>
                   </div>
                   <div class="form-check">
                     <input class="form-check-input" type="radio" name="role" id="admin" value="1">
