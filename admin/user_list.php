@@ -1,7 +1,9 @@
 <?php
 
-require '../config/config.inc.php';
+
 session_start();
+require '../config/config.inc.php';
+require '../config/common.php';
 
 if(empty($_SESSION['user_id']) && empty($SESSION['logged_in'])) {
   header('location: login.php');
@@ -85,12 +87,12 @@ if(empty($_SESSION['user_id']) && empty($SESSION['logged_in'])) {
                     ?>
                     <tr>
                       <td><?php echo $i;?></td>
-                      <td><?php echo $value['name'];?></td>
-                      <td><?php echo $value['email'];?></td>
+                      <td><?php echo escape($value['name']);?></td>
+                      <td><?php echo escape($value['email']);?></td>
                       <td><?php echo ($value['role']==1) ? "admin": "user";?></td>
                       <td class="btn-group">
-                      <div class="container"><a href="user_edit.php?id=<?php echo $value['id']?>" type="submit" class="btn btn-warning">Edit</a></div>
-                      <div class="container"><a href="user_delete.php?id=<?php echo $value['id']?>"
+                      <div class="container"><a href="user_edit.php?id=<?php echo escape($value['id'])?>" type="submit" class="btn btn-warning">Edit</a></div>
+                      <div class="container"><a href="user_delete.php?id=<?php echo escape($value['id'])?>"
                         onclick="return confirm('Are you want to delete this item.')"
                         type="submit" class="btn btn-danger">Delete</a></div>
 

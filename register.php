@@ -1,6 +1,7 @@
 <?php
 session_start();
 require 'config/config.inc.php';
+require 'config/common.php';
 
 if($_POST) {
 
@@ -77,8 +78,9 @@ if($_POST) {
       <p class="login-box-msg">Register</p>
 
       <form action="register.php" method="post">
+        <input name="_token" type="hidden" value="<?php echo escape($_SESSION['_token']); ?>">
         <div class="input-group mb-3">
-          <input type="text" name="name" class="form-control" placeholder="Name" value="<?php echo empty($_POST['name']) ? '':$_POST['name'];?>">
+          <input type="text" name="name" class="form-control" placeholder="Name" value="<?php echo empty($_POST['name']) ? '':escape($_POST['name']);?>">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="far fa-address-card"></span>
@@ -87,7 +89,7 @@ if($_POST) {
         </div>
         <p style="color:red;"><?php echo empty($nameErr)? '':'*'.$nameErr;?></p>
         <div class="input-group mb-3">
-          <input type="email" name="email" class="form-control" placeholder="Email" value="<?php echo empty($_POST['email']) ? '':$_POST['email'];?>">
+          <input type="email" name="email" class="form-control" placeholder="Email" value="<?php echo empty($_POST['email']) ? '':escape($_POST['email']);?>">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-envelope"></span>

@@ -1,7 +1,8 @@
 <?php
-
-require '../config/config.inc.php';
 session_start();
+require '../config/config.inc.php';
+require '../config/common.php';
+
 
 if(empty($_SESSION['user_id']) && empty($SESSION['logged_in'])) {
   header('location: login.php');
@@ -83,16 +84,17 @@ $result = $stmt->fetchAll();
           <div class="col-md-12">
             <div class="card">
               <form role="form" action="" method="POST">
+                <input name="_token" type="hidden" value="<?php echo escape($_SESSION['_token']); ?>">
                 <div class="card-body">
-                  <input type="hidden" class="form-control" name="id" value="<?php echo $result[0]['id']?>">
+                  <input type="hidden" class="form-control" name="id" value="<?php echo escape($result[0]['id'])?>">
                   <div class="form-group">
                     <label for="name">Name</label>
-                    <input type="text" class="form-control" name="name" id="name"  value="<?php echo $result[0]['name']?>">
+                    <input type="text" class="form-control" name="name" id="name"  value="<?php echo escape($result[0]['name'])?>">
                     <span style="color:red;"><?php echo $nameErr;?></span>
                   </div>
                   <div class="form-group">
                     <label for="email">Email</label>
-                    <input type="email" class="form-control" name="email" id="email" value="<?php echo $result[0]['email']?>">
+                    <input type="email" class="form-control" name="email" id="email" value="<?php echo escape($result[0]['email'])?>">
                     <span style="color:red;"><?php echo $emailErr;?></span>
                   </div>
                   <div class="form-group">

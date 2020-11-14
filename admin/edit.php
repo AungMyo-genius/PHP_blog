@@ -1,7 +1,8 @@
 <?php
-
-require '../config/config.inc.php';
 session_start();
+require '../config/config.inc.php';
+require '../config/common.php';
+
 
 if(empty($_SESSION['user_id']) && empty($SESSION['logged_in'])) {
   header('location: login.php');
@@ -77,18 +78,19 @@ if($_POST) {
         ?>
         <div class="card-body">
             <form action="" method="post" enctype="multipart/form-data">
-                <input type="hidden" name="id" value="<?php echo $output['id']?>">
+              <input name="_token" type="hidden" value="<?php echo escape($_SESSION['_token']); ?>">
+                <input type="hidden" name="id" value="<?php echo escape($output['id']);?>">
                 <div class="form-group">
                     <label for="">Title</label><p style="color:red;"><?php echo empty($titleErr) ? '': '*'.$titleErr;?></p>
-                    <input type="text" name="title" id="" class="form-control" value="<?php echo $output['title']?>">
+                    <input type="text" name="title" id="" class="form-control" value="<?php echo escape($output['title'])?>">
                 </div>
                 <div class="form-group">
                     <label for="">Content</label><p style="color:red;"><?php echo empty($contentErr) ? '': '*'.$contentErr;?></p>
-                    <textarea name="content" id="" cols="30" rows="10" class="form-control"><?php echo $output['content']?></textarea>
+                    <textarea name="content" id="" cols="30" rows="10" class="form-control"><?php echo escape($output['content'])?></textarea>
                 </div>
                 <div class="form-group">
                     <label for="">Image</label><br>
-                    <img src="images/<?php echo $output['image']?>" alt="" width="200" >
+                    <img src="images/<?php echo escape($output['image'])?>" alt="" width="200" >
                     <input type="file" name="image" id="" class="form-control-file mt-2">
                 </div>
                 <div class="form-group">

@@ -1,6 +1,7 @@
 <?php
 session_start();
 require 'config/config.inc.php';
+require 'config/common.php';
 if(empty($_SESSION['user_id']) && empty($SESSION['logged_in'])) {
   header('location: login.php');
 }
@@ -76,7 +77,7 @@ $cmResult = $stmtCmt->fetchAll();
           <div class="card card-widget">
             <div class="card-header">
               <div style="float:none; text-align:center" class="card-title">
-                <h4><?php echo $result[0]['title'];?><span style="float:left">
+                <h4><?php echo escape($result[0]['title']);?><span style="float:left">
                   <a href="logout.php" type="button" class="btn btn-primary">Logout</a></span>
                   <span style="float:right;"><a href="index.php" class="btn btn-primary">Back </a></span>
                 </h4>
@@ -85,15 +86,15 @@ $cmResult = $stmtCmt->fetchAll();
             </div>
 
             <div class="card-body">
-              <img class="img-fluid pad" src="admin/images/<?php echo $result[0]['image'];?>" alt="Photo">
+              <img class="img-fluid pad" src="admin/images/<?php echo escape($result[0]['image']);?>" alt="Photo">
 
-              <p style="font-size:2rem;"><?php echo $result[0]['content'];?></p>
+              <p style="font-size:2rem;"><?php echo escape($result[0]['content']);?></p>
               <!-- <button type="button" class="btn btn-default btn-sm"><i class="far fa-thumbs-up"></i> Like</button>
               <span class="float-right text-muted">127 likes - 3 comments</span> -->
             </div>
 
 
-              <p style="color:red;"><?php echo empty($cmtErr)? '':'*'.$cmtErr;?></p>
+              <p style="color:red;"><?php echo empty($cmtErr)? '':'*'.escape($cmtErr);?></p>
               <div class="card-footer card-comments">
                 <h4>Comment:</h4>
                 <?php if($cmResult) {
@@ -108,10 +109,10 @@ $cmResult = $stmtCmt->fetchAll();
 
                 <div class="comment-text" style="margin-left:0px !important">
                   <span class="username">
-                    <?php echo $auResult[0]['name']?>
-                    <span class="text-muted float-right"><?php echo $value['created_at']?> </span>
+                    <?php echo escape($auResult[0]['name'])?>
+                    <span class="text-muted float-right"><?php echo escape($value['created_at'])?> </span>
                   </span>
-                    <?php echo $value['content']?>
+                    <?php echo escape($value['content'])?>
                 </div>
                 <!-- /.comment-text -->
               </div>

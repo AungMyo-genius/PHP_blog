@@ -1,7 +1,9 @@
 <?php
-
-require '../config/config.inc.php';
 session_start();
+require '../config/config.inc.php';
+require '../config/common.php';
+
+
 
 if(empty($_SESSION['user_id']) && empty($SESSION['logged_in'])) {
   header('location: login.php');
@@ -68,6 +70,7 @@ if(!empty($_POST)) {
           <div class="col-md-12">
             <div class="card">
               <form role="form" action="user_add.php" method="POST" enctype="multipart/form-data">
+                <input name="_token" type="hidden" value="<?php echo escape($_SESSION['_token']); ?>">
                 <div class="card-body">
                   <div class="form-group">
                     <label for="name">Name</label>

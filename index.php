@@ -1,6 +1,7 @@
 <?php
 session_start();
 require 'config/config.inc.php';
+require 'config/common.php';
 if(empty($_SESSION['user_id']) && empty($SESSION['logged_in'])) {
   header('location: login.php');
 }
@@ -70,15 +71,15 @@ if(empty($_SESSION['user_id']) && empty($SESSION['logged_in'])) {
           <div class="card card-widget">
             <div class="card-header">
               <div style="float:none; text-align:center" class="card-title">
-                <h4><?php echo $value['title'];?></h4>
+                <h4><?php echo escape($value['title']);?></h4>
               </div>
 
 
             </div>
             <!-- /.card-header -->
             <div class="card-body">
-              <a href="blogdetail.php?id=<?php echo $value['id']?>">
-                <img style="height:400px !important;" class="img-fluid pad" src="admin/images/<?php echo $value['image'];?>"/></a>
+              <a href="blogdetail.php?id=<?php echo escape($value['id'])?>">
+                <img style="height:400px !important;" class="img-fluid pad" src="admin/images/<?php echo escape($value['image']);?>"/></a>
             </div>
           </div>
         </div>
@@ -104,7 +105,7 @@ if(empty($_SESSION['user_id']) && empty($SESSION['logged_in'])) {
 <div class="float-right d-none d-sm-block">
   <b> <?php if($_SESSION['role'] == 1){echo "<a href='admin/index.php' type='button' class='btn btn-default'>Admin Panel</a>";} ?></b>
 </div>
-<strong>Copyright &copy; <?php date('Y')?> <a href="">Actulized</a>.</strong> All rights
+<strong>Copyright &copy; <?php echo date('Y');?> <a href="">Actulized</a>.</strong> All rights
 reserved.
 </footer>
 
